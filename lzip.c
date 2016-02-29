@@ -61,9 +61,10 @@ rc4_crypt(struct rc4_sbox *box, const uint8_t *stream_in, uint8_t *stream_out, i
 
 static void
 lz_assert(lua_State *L, int result, struct filter *flt) {
+	z_stream* stream;
 	if ( result == Z_OK || result == Z_STREAM_END || result == Z_BUF_ERROR )
 		return;
-	z_stream* stream = flt->stream;
+	stream = flt->stream;
 	switch ( result ) {
 	case Z_NEED_DICT:
 		lua_pushfstring(L, "RequiresDictionary: input stream requires a dictionary to be deflated (%s)", stream->msg);
@@ -207,10 +208,11 @@ struct reader {
 
 static const char *
 zip_reader(lua_State *L, void *data, size_t *size) {
+	z_stream *stream;
 	struct reader *rd = data;
 	if (rd->source == NULL)
 		return NULL;
-	z_stream *stream = &rd->stream;
+	stream = &rd->stream;
 	if (stream->avail_in == 0 && rd->flags != Z_FINISH) {
 		if (rd->source_sz <= CHUNK_IN) {
 			rd->flags = Z_FINISH;

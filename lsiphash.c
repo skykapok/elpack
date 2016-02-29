@@ -26,7 +26,11 @@ lsiphash(lua_State *L) {
 	uint8_t key[16];
 	size_t sz = 0;
 	const char * str = luaL_checklstring(L, 1, &sz);
+#ifdef _MSC_VER
+	uint8_t *lower = malloc(sizeof(uint8_t) * sz);
+#else
 	uint8_t lower[sz];
+#endif
 	int i;
 	for (i=0;i<sz;i++) {
 		lower[i] = tolower(str[i]);
@@ -36,6 +40,9 @@ lsiphash(lua_State *L) {
 	siphashsalt(key, keystr, keysz);
 	siphash(out, lower, sz, key);
 	lua_pushlstring(L, (const char *)out, 8);
+#ifdef _MSC_VER
+	free(lower);
+#endif
 	return 1;
 }
 

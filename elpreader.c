@@ -183,19 +183,20 @@ elp_load(lua_State *L) {
 
 static int
 elp_open(lua_State *L) {
+	uint8_t tag[4] = { 0,0,0,0 };
+	uint32_t v1, v2, header_size, header_n, body_size;
 	const char * filename = luaL_checkstring(L,1);	// filename
 	FILE *f = fopen(filename, "rb");
 	if (f == NULL)
 		return luaL_error(L, "Can't open %s", filename);
-	uint8_t tag[4] = { 0,0,0,0 };
 	fread(tag, 1, 4, f);
 	if (memcmp(tag, "ELP1",4) != 0)
 		return luaL_error(L, "Invalid elp file %s", filename);
-	uint32_t v1 = read_dword(f);
-	uint32_t v2 = read_dword(f);
-	uint32_t header_size = read_dword(f);
-	uint32_t header_n = read_dword(f);
-	uint32_t body_size = read_dword(f);
+	v1 = read_dword(f);
+	v2 = read_dword(f);
+	header_size = read_dword(f);
+	header_n = read_dword(f);
+	body_size = read_dword(f);
 
 	if (fseek(f, body_size + HEADER_SIZE, SEEK_SET) != 0) {
 		return luaL_error(L, "Damaged file %s", filename);
